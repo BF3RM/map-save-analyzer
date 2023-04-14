@@ -1,7 +1,7 @@
 import axios from "axios"
 
-const testingURL = "http://localhost:5000/api"
-const baseURL = "/api"
+const baseUrl = "http://localhost:5000/api"
+const testingURL = "/api"
 
 export async function postFile(formData) {
     return axios.post(`${testingURL}/newFile`, formData)
