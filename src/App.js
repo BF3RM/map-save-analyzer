@@ -1,7 +1,7 @@
 import DropzoneComponent from "./Components/DragDrop"
 import React from "react"
 import "./App.css"
-import { deleteItems, getDirectories, getFileData, getFile } from "./api/helper"
+import { deleteItems, getDirectories, getFileData, getFile, deleteFile, mergeTwoFiles } from "./api/helper"
 
 export default function App() {
     const [details, setDetails] = React.useState(null)
@@ -10,6 +10,7 @@ export default function App() {
     const [objectsToRemove, setObjectsToRemove] = React.useState([])
     const [filesOnServer, setFilesOnServer] = React.useState([])
     const [currentFileDetails, setCurrentFileDetails] = React.useState({})
+    const [merge, setMerge] = React.useState(null)
 
     React.useEffect(() => {
         updateDirectories()
@@ -123,12 +124,44 @@ export default function App() {
         console.log(directory, filename)
     }
 
+    async function deleteGivenFile(dataObject) {
+        const confirmDeletion = window.confirm(`This will delete: [${dataObject.filename}] from [/${dataObject.directory}]. This action CANNOT BE UNDONE. Are you sure?`)
+        if(confirmDeletion) {
+            await deleteFile(dataObject)
+            await updateDirectories()
+        }
+    }
+
     function clearState() {
         setDetails(() => null)
         setSpawnedItems(() => null)
         setNameFilter(() => null)
         setObjectsToRemove(() => [])
         setCurrentFileDetails(() => {})
+        setMerge(null)
+    }
+
+    async function pickSecondFile(dataObject) {
+        if(dataObject.filename === currentFileDetails.filename && currentFileDetails.directory === dataObject.directory) {
+            console.log(dataObject)
+            console.log(currentFileDetails)
+            alert("Cannot merge file with itself. Pick a different file.")
+            return
+        }
+
+        const desiredFileName = window.prompt("Enter a name (Server will add extension)")
+        const confirmMerge = window.confirm(`This will merge: [${currentFileDetails.filename}] from [${currentFileDetails.directory}]\n\n[${dataObject.filename}] from [${dataObject.directory}]\n\n Will store in a file called [${desiredFileName}.json] `)
+        if (confirmMerge) {
+            const fileOne = {...currentFileDetails}
+            const fileTwo = {...dataObject}
+            const fileObj = {fileOne, fileTwo, desiredFileName}
+            console.log(fileObj)
+            const resp = await mergeTwoFiles(fileObj)
+            setTimeout(() => {
+                window.location.href = "/"
+            }, 1)
+            alert(resp)
+        }
     }
 
     return (
@@ -152,6 +185,7 @@ export default function App() {
 
                                             {parent.files.map((item, index) => 
                                             <div key={index} className="priorSaves--oneSave">
+                                                    <button onClick={() => {deleteGivenFile({directory: parent.directory, filename: item})}}>DELETE FILE</button>
                                                     <p>{item}</p>
                                                     <button onClick={() => {openFile({directory: parent.directory, filename: item})}}>LOAD</button>
                                                     <button onClick={() => {openFileInSameTab({directory: parent.directory, filename: item})}}>GET JSON</button>
@@ -171,38 +205,62 @@ export default function App() {
                         <p>Game Mode:  {details.gameModeName}</p>
                         <p>Save version: {details.saveVersion}</p>
                         <button style={{padding: "1rem" }} onClick={() => {clearState()}}>BACK</button>
+                        <button style={{padding: "1rem" }} onClick={() => {setMerge(() => true)}}>MERGE WITH ANOTHER SAVE</button>
                     </div>
                     
-                    <table className="spawnedItemsTable">
-                        <caption>
-                            FILTER RESULTS: <input type="text" onChange={handleSearchChange} value={nameFilter}></input> {objectsToRemove.length >= 1 && <button onClick={handleRemoveObjects}>DELETE SELECTED</button>}
-                        </caption>
-                        <thead>
-                            <tr>
-                            <th scope="col">Selected</th>
-                            <th scope="col">Item Name</th>
-                            <th scope="col">Amount <button onClick={sortSpawnedItems}>{`\u25BC`}</button></th>
-                            <th scope="col">GUID</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {spawnedItems.map((item, index) => {
-                                return (
-                                    <tr key={index}>
-                                        <td><input className="checkBoxes" type="checkbox" onClick={() => {handleCheckBox(item.name)}} /></td>
-                                        <td className="itemName" key={index + "name"}>
-                                            {item.name}
-                                            </td>
-                                        <td className="count" key={index + "count"}>{item.count}</td>
-                                        <td key={index + "GUID"}>{item.guid}</td>
-                                    </tr> 
-                                )
-                            })}
-                        </tbody>
-                    </table>
+                    { !merge && 
+                        <table className="spawnedItemsTable">
+                            <caption>
+                                FILTER RESULTS: <input type="text" onChange={handleSearchChange} value={nameFilter}></input> {objectsToRemove.length >= 1 && <button style={{padding: "1rem"}} onClick={handleRemoveObjects}>DELETE SELECTED</button>} 
+                                <div>{details.numItems} Items in {details.mapName}</div>
+                            </caption>
+                            <thead>
+                                <tr>
+                                <th scope="col">Selected</th>
+                                <th scope="col">Item Name</th>
+                                <th scope="col">Amount <button onClick={sortSpawnedItems}>{`\u25BC`}</button></th>
+                                <th scope="col">GUID</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {spawnedItems.map((item, index) => {
+                                    return (
+                                        <tr key={index}>
+                                            <td><input className="checkBoxes" type="checkbox" onClick={() => {handleCheckBox(item.name)}} /></td>
+                                            <td className="itemName" key={index + "name"}>
+                                                {item.name}
+                                                </td>
+                                            <td className="count" key={index + "count"}>{item.count}</td>
+                                            <td key={index + "GUID"}>{item.guid}</td>
+                                        </tr> 
+                                    )
+                                })}
+                            </tbody>
+                        </table>    
+                    }
+
+                    { merge && <>
+                        <h1>Current file: /{currentFileDetails.directory}/{currentFileDetails.filename}</h1>
+                        {
+                            filesOnServer.map((parent, index) => {
+                                return <div key={index} className="priorSaveGroup">
+
+                                        <div className="directoryName">
+                                            <p>/{parent.directory}</p>
+                                        </div>
+
+                                        {parent.files.map((item, index) => 
+                                        <div key={index} className="priorSaves--oneSave">
+                                                <button onClick={() => {pickSecondFile({directory: parent.directory, filename: item})}}>MERGE</button>
+                                                <p>{item}</p>
+                                            </div>)}
+                                        </div>
+                            })
+                        }
+                    </>
+                    }
                 </>
             }
-            
         </div>
     )
 }
