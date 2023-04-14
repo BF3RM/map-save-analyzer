@@ -1,12 +1,29 @@
 import DropzoneComponent from "./Components/DragDrop"
 import React from "react"
 import "./App.css"
+import { getDirectories, getFile } from "./api/helper"
 
 export default function App() {
     const [details, setDetails] = React.useState(null)
     const [spawnedItems, setSpawnedItems] = React.useState(null)
     const [nameFilter, setNameFilter] = React.useState(null) 
     const [objectsToRemove, setObjectsToRemove] = React.useState([])
+    const [filesOnServer, setFilesOnServer] = React.useState([])
+
+    React.useEffect(() => {
+        updateDirectories()
+    }, [])
+
+    async function updateDirectories () {
+        const data = await getDirectories()
+        if(!data) {
+            return
+        } else {
+            console.log(data)
+            const filteredData = [...data.filter((item) => item.files.length > 0)]
+            setFilesOnServer(filteredData)
+        }
+    }
 
     function showUploadedFile(payload) {
         setDetails(() => payload)
@@ -83,10 +100,45 @@ export default function App() {
         }
     }, [nameFilter])
 
+    async function openFile(dataObject){
+        const {directory, filename} = dataObject
+        if(directory && filename) {
+            const data = await getFile(dataObject)
+            showUploadedFile(data)
+        }
+        console.log(directory, filename)
+    }
+
     return (
         <div className="App">
             {
-               !details && <DropzoneComponent showUploadedFile={showUploadedFile}/>
+                !details && <div>
+                    <h1>BF3RM Map Save Analyzer</h1>
+                    <div className="flexContainer">
+                        <DropzoneComponent showUploadedFile={showUploadedFile}/>
+                        <h2>OR</h2>
+                        <div>
+                            <h3>Select Prior Save</h3>
+                            <div className="priorSaves">
+                                {
+                                    filesOnServer.map((parent, index) => {
+                                    return <div key={index} className="priorSaveGroup">
+
+                                            <div className="directoryName">
+                                                <p>/{parent.directory}</p>
+                                            </div>
+
+                                            {parent.files.map((item, index) => 
+                                            <div key={index} className="priorSaves--oneSave">
+                                                    <p>{item}</p>
+                                                    <button onClick={() => {openFile({directory: parent.directory, filename: item})}}>LOAD</button>
+                                                </div>)}
+                                            </div>
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             }
             {
                 details && <>
