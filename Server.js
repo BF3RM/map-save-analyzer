@@ -5,6 +5,7 @@ const port = 5000
 const path = require("path")
 const cors = require("cors")
 const multer = require("multer")
+const uuidv4 = require("uuid").v4
 app.use(cors())
 app.use(express.json())
 
@@ -23,19 +24,19 @@ const rawSaves = multer.diskStorage({
     }
 })
 
-const partialSaves = multer.diskStorage({
+const modifiedSaves = multer.diskStorage({
     destination: function(req, file, callback) {
-        callback(null, path.resolve(__dirname, "MapSaves", "PartialSaves"))
+        callback(null, path.resolve(__dirname, "MapSaves", "ModifiedSaves"))
     } ,
     filename: function (req, file, callback) {
-        // const date = new Date()
-        // const dateStamp = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}_`
-        // callback(null, dateStamp + file.originalname)
-        callback(null, file.originalname)
+        const date = new Date()
+        const dateStamp = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}_`
+        callback(null, dateStamp + file.originalname)
     }
 })
 
 const uploads = multer({storage: rawSaves})
+const modified = multer({storage: modifiedSaves})
 
 function getFileData(pathName) {
     const info = JSON.parse(fs.readFileSync(pathName))
@@ -67,6 +68,7 @@ function getFileData(pathName) {
 
     const payload = {
         spawnedItems: objectCountsAsArrayOfObjects,
+        numItems: info.data.length,
         ...info.header
     }
     return payload
@@ -83,6 +85,12 @@ app.post("/api/newFile", uploads.array("files"), (req, res) => {
     // const payload = getFileData(pathName)
 
     res.send(`File [${name}] Uploaded`) 
+})
+
+app.post("/api/newModifiedFile", modified.array("files"), (req, res) => {
+    const { name } = req.body
+
+    res.send(`File [${name} Uploaded]`)
 })
 
 app.post("/api/getFileData", (req, res) => {
@@ -126,7 +134,7 @@ app.post("/api/deleteObjects", (req, res) => {
     const blockedItemsArray = req.body.items
     const {directory, filename} = req.body
 
-    const pathName = path.join(__dirname, "MapSaves", directory, filename)
+    const pathName = path.resolve(__dirname, "MapSaves", directory, filename)
     const fileData = JSON.parse(fs.readFileSync(pathName, "utf-8"))
 
     
@@ -160,8 +168,8 @@ app.post("/api/deleteObjects", (req, res) => {
     }
 
     if(numObjects.differenceAddsUp) {
-        const excludedPath = path.join(__dirname, "MapSaves", "ModifiedSaves", `ALL-REMOVED-ITEMS_${filename}`)
-        const normalPath = path.join(__dirname, "MapSaves", "ModifiedSaves", `NORMAL-ITEMS_${filename}`)
+        const excludedPath = path.join(__dirname, "MapSaves", "ModifiedSaves", `ONLY-REMOVED-ITEMS_${fileData.header.mapName}.json`)
+        const normalPath = path.join(__dirname, "MapSaves", "ModifiedSaves", `NORMAL-ITEMS_${fileData.header.mapName}.json`)
 
         fs.writeFileSync(excludedPath, JSON.stringify(dirtyObject))
         fs.writeFileSync(normalPath, JSON.stringify(cleanObject))
@@ -169,6 +177,46 @@ app.post("/api/deleteObjects", (req, res) => {
     } else {
         console.error(`Mismatch in item counts. ${numObjects.cleanLen} + ${numObjects.dirtyLen} !== ${numObjects.originalLen}`)
         res.status(500).send("ERROR")
+    }
+})
+
+app.post("/api/deleteFile", (req, res) => {
+    const { directory, filename } = req.body
+    const pathName = path.resolve(__dirname, "MapSaves", directory, filename)
+    fs.unlinkSync(pathName)
+    res.send("Yep")
+})
+
+app.post("/api/mergeTwoFiles", (req, res) => {
+    const { fileOne, fileTwo, desiredFileName } = req.body
+
+    const path1 = path.resolve(__dirname, "MapSaves", fileOne.directory, fileOne.filename)
+    const fileDataOne = JSON.parse(fs.readFileSync(path1, "utf-8"))
+
+    const path2 = path.resolve(__dirname, "MapSaves", fileTwo.directory, fileTwo.filename)
+    const fileDataTwo = JSON.parse(fs.readFileSync(path2, "utf-8"))
+
+    if(fileDataOne.header.mapName === fileDataTwo.header.mapName && fileDataOne.header.gameMode === fileDataTwo.header.gameMode) {
+        const combinedLengths = fileDataOne.data.length + fileDataTwo.data.length
+
+        const header = {
+            ...fileDataOne.header,
+            ...fileDataTwo.header
+        }
+    
+        const data = [...fileDataOne.data, ...fileDataTwo.data]
+    
+        if(data.length === combinedLengths) {
+            const finalObj = JSON.stringify({ header, data })
+            const uniqueCode = uuidv4()
+            const name = !desiredFileName ? `${fileDataOne.header.mapName}_${uniqueCode}` : desiredFileName
+            const finalPath = path.resolve(__dirname, "MapSaves", "MergedSaves", `${name}.json`)
+            fs.writeFileSync(finalPath, finalObj)
+            res.send("SUCCESSFULLY MADE FILE!!!")
+        }        
+
+    } else {
+        return res.send("File header shows different maps or gamemodes. Cancelling merge.")
     }
 })
 
