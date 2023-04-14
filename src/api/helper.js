@@ -10,6 +10,13 @@ export async function postFile(formData) {
     }).catch((error) => console.error(error))
 }
 
+export async function postModifiedFile(formData) {
+    return axios.post(`${testingURL}/newModifiedFile`, formData)
+    .then(response => {
+        return response?.data
+    }).catch((error) => console.error(error))
+}
+
 export async function getDirectories() {
     return axios.get(`${testingURL}/directories`)
         .then(response => {
@@ -47,4 +54,18 @@ export async function getFile(dataObject) {
       .catch(error => {
         console.log(error);
       });
+}
+
+export async function deleteFile(dataObject) {
+    return axios.post(`${testingURL}/deleteFile`, dataObject)
+    .then(response => {
+        return response?.data
+    }).catch((error) => console.error(error))
+}
+
+export async function mergeTwoFiles(dataObject) {
+    return axios.post(`${testingURL}/mergeTwoFiles`, dataObject)
+    .then(response => {
+        return response?.data
+    }).catch((error) => console.error(error))
 }
