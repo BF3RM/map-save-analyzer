@@ -17,9 +17,8 @@ export async function getDirectories() {
     }).catch((error) => console.error(error))
 }
 
-export async function getFile(dataObject) {
-    console.log(dataObject)
-    return axios.post(`${testingURL}/getFile`, dataObject)
+export async function getFileData(dataObject) {
+    return axios.post(`${testingURL}/getFileData`, dataObject)
         .then(response => {
             return response?.data
         }).catch((error) => console.error(error))
@@ -27,9 +26,25 @@ export async function getFile(dataObject) {
 
 
 export async function deleteItems(dataObject) {
-    console.log(dataObject)
     return axios.post(`${testingURL}/deleteObjects`, dataObject)
         .then(response => {
             return response?.data
         }).catch((error) => console.error(error))
+}
+
+export async function getFile(dataObject) {
+    return axios.post(`${testingURL}/getFile`, dataObject, {responseType: "blob"}).then(response => {
+        console.log(response.data)
+        //Create a Blob from the PDF Stream
+        const file = new Blob([response.data], {
+          type: "application/json"
+        });
+        //Build a URL from the file
+        const fileURL = URL.createObjectURL(file);
+        //Open the URL on new Window
+        window.location.href = fileURL;
+      })
+      .catch(error => {
+        console.log(error);
+      });
 }
