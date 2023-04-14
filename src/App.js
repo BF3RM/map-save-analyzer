@@ -1,7 +1,7 @@
 import DropzoneComponent from "./Components/DragDrop"
 import React from "react"
 import "./App.css"
-import { getDirectories, getFile } from "./api/helper"
+import { deleteItems, getDirectories, getFile } from "./api/helper"
 
 export default function App() {
     const [details, setDetails] = React.useState(null)
@@ -9,6 +9,7 @@ export default function App() {
     const [nameFilter, setNameFilter] = React.useState(null) 
     const [objectsToRemove, setObjectsToRemove] = React.useState([])
     const [filesOnServer, setFilesOnServer] = React.useState([])
+    const [currentFileDetails, setCurrentFileDetails] = React.useState({})
 
     React.useEffect(() => {
         updateDirectories()
@@ -26,8 +27,9 @@ export default function App() {
     }
 
     function showUploadedFile(payload) {
-        setDetails(() => payload)
-        setSpawnedItems(() => payload.spawnedItems)
+        console.log(payload)
+        /* setDetails(() => payload)
+        setSpawnedItems(() => payload.spawnedItems) */
     }
 
     function sortSpawnedItems(e){
@@ -82,12 +84,20 @@ export default function App() {
         }
     }
 
-    function handleRemoveObjects() {
+    async function handleRemoveObjects() {
         // axios post to server
         // update details, and spawnedItems.
         console.table(objectsToRemove)
         const continueDelete = window.confirm(`Are you sure? This will delete: \n\n${objectsToRemove.join("\n\n")}`)
-        console.log(continueDelete)
+        if (continueDelete) {
+            const payload = {
+                items: objectsToRemove,
+                directory: currentFileDetails.directory,
+                filename: currentFileDetails.filename 
+            }
+            const resp = await deleteItems({...payload})
+            window.location.href = "/"
+        }
     }
 
     React.useEffect(() => {
@@ -103,10 +113,24 @@ export default function App() {
     async function openFile(dataObject){
         const {directory, filename} = dataObject
         if(directory && filename) {
-            const data = await getFile(dataObject)
-            showUploadedFile(data)
+            const {payload, filename, directory} = await getFile(dataObject)
+            // showUploadedFile(data)
+            setDetails(() => payload)
+            setSpawnedItems(() => payload.spawnedItems)
+            const newObj = {
+                filename, directory
+            }
+            setCurrentFileDetails(() => newObj)
         }
         console.log(directory, filename)
+    }
+
+    function clearState() {
+        setDetails(() => null)
+        setSpawnedItems(() => null)
+        setNameFilter(() => null)
+        setObjectsToRemove(() => [])
+        setCurrentFileDetails(() => {})
     }
 
     return (
@@ -115,7 +139,7 @@ export default function App() {
                 !details && <div>
                     <h1>BF3RM Map Save Analyzer</h1>
                     <div className="flexContainer">
-                        <DropzoneComponent showUploadedFile={showUploadedFile}/>
+                        <DropzoneComponent showUploadedFile={updateDirectories}/>
                         <h2>OR</h2>
                         <div>
                             <h3>Select Prior Save</h3>
@@ -147,6 +171,7 @@ export default function App() {
                         <p>Map: {details.mapName}</p>
                         <p>Game Mode:  {details.gameModeName}</p>
                         <p>Save version: {details.saveVersion}</p>
+                        <button style={{padding: "1rem" }} onClick={() => {clearState()}}>BACK</button>
                     </div>
                     
                     <table className="spawnedItemsTable">
