@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
-import axios from 'axios';
 import { postFile } from '../api/helper';
 
 export default function DropzoneComponent({showUploadedFile}) {
@@ -10,8 +9,13 @@ export default function DropzoneComponent({showUploadedFile}) {
         const formData = new FormData()
         formData.append('files', acceptedFiles[0])
         formData.append('name', name)
-        const properData = await postFile(formData)
-        showUploadedFile(properData)
+        const isFullSave = window.confirm("Is this a full save (ex: not a _noTrees variant)")
+        if (isFullSave) {
+            const properData = await postFile(formData)
+            showUploadedFile(properData)
+        } else{
+            alert("API CALL to put a PARTIAL SAVE")
+        }
     }, []);
 
     const {
@@ -46,21 +50,20 @@ export default function DropzoneComponent({showUploadedFile}) {
 
 
 const baseStyle = {
-    display: 'flex',
-    flexDirection: 'column',
     alignItems: 'center',
-    padding: '80px',
+    padding: '7rem',
+    fontSize: '2rem',
     borderWidth: 2,
     borderRadius: 2,
-    borderColor: '#eeeeee',
+    borderColor: 'darkgray',
     borderStyle: 'dashed',
     backgroundColor: '#fafafa',
     color: '#bdbdbd',
-    transition: 'border .3s ease-in-out'
+    transition: 'border .3s ease-in-out',
   };
   
   const activeStyle = {
-    borderColor: '#2196f3'
+    borderColor: '#2196f3',
   };
   
   const acceptStyle = {
