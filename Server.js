@@ -6,12 +6,26 @@ const path = require("path")
 const cors = require("cors")
 const multer = require("multer")
 app.use(cors())
+app.use(express.json())
 
 
 
-const storage = multer.diskStorage({
+const rawSaves = multer.diskStorage({
     destination: function(req, file, callback) {
         callback(null, path.resolve(__dirname, "MapSaves", "RawSaves"))
+    } ,
+    filename: function (req, file, callback) {
+        // const date = new Date()
+        // const dateStamp = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}_`
+        // callback(null, dateStamp + file.originalname)
+        // file.originalname.split(".")[0] + ".json"
+        callback(null, file.originalname)
+    }
+})
+
+const partialSaves = multer.diskStorage({
+    destination: function(req, file, callback) {
+        callback(null, path.resolve(__dirname, "MapSaves", "PartialSaves"))
     } ,
     filename: function (req, file, callback) {
         // const date = new Date()
@@ -21,17 +35,9 @@ const storage = multer.diskStorage({
     }
 })
 
-const uploads = multer({storage: storage})
+const uploads = multer({storage: rawSaves})
 
-
-app.use(express.static(path.join(__dirname, "build")))
-app.listen(port, () => {
-    console.log(`listening on port ${port}`)
-})
-app.post("/api/file", uploads.array("files"), (req, res) => {
-    const { name } = req.body
-
-    const pathName = path.resolve(__dirname, "MapSaves", "RawSaves", name)
+function getFileData(pathName) {
     const info = JSON.parse(fs.readFileSync(pathName))
     const objectCountsAsArrayOfObjects = []
 
@@ -63,9 +69,53 @@ app.post("/api/file", uploads.array("files"), (req, res) => {
         spawnedItems: objectCountsAsArrayOfObjects,
         ...info.header
     }
+    return payload
+}
+
+app.use(express.static(path.join(__dirname, "build")))
+app.listen(port, () => {
+    console.log(`listening on port ${port}`)
+})
+app.post("/api/newFile", uploads.array("files"), (req, res) => {
+    const { name } = req.body
+
+    const pathName = path.resolve(__dirname, "MapSaves", "RawSaves", name)
+    const payload = getFileData(pathName)
 
     res.json(payload) 
 })
+
+app.post("/api/getFile", (req, res) => {
+    const { directory, filename } = req.body
+    const pathName = path.resolve(__dirname, "MapSaves", directory, filename)
+
+    const payload = getFileData(pathName)
+    res.json(payload)
+})
+
+app.get("/api/directories", (req, res) => {
+    try {
+        const pathName = path.resolve(__dirname, "MapSaves")
+        const directories = fs.readdirSync(pathName)
+        
+
+        const arrayOfDirectoriesAndFiles = directories.map((item) => {
+            const innerPath = path.resolve(__dirname, "MapSaves", item)
+            const innerFiles = fs.readdirSync(innerPath, {withFileTypes: true})
+            .filter(item => !item.isDirectory())
+            .map(item => item.name)
+            return {
+                directory: item,
+                files: innerFiles
+            }
+        })
+        
+        res.send(arrayOfDirectoriesAndFiles)
+      } catch(e) {
+        console.log(e)
+      }
+})
+
 app.get("/tacos", (req, res) => {
     res.send("I like tacos")
 })
