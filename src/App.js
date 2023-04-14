@@ -1,7 +1,7 @@
 import DropzoneComponent from "./Components/DragDrop"
 import React from "react"
 import "./App.css"
-import { deleteItems, getDirectories, getFile } from "./api/helper"
+import { deleteItems, getDirectories, getFileData, getFile } from "./api/helper"
 
 export default function App() {
     const [details, setDetails] = React.useState(null)
@@ -24,12 +24,6 @@ export default function App() {
             const filteredData = [...data.filter((item) => item.files.length > 0)]
             setFilesOnServer(filteredData)
         }
-    }
-
-    function showUploadedFile(payload) {
-        console.log(payload)
-        /* setDetails(() => payload)
-        setSpawnedItems(() => payload.spawnedItems) */
     }
 
     function sortSpawnedItems(e){
@@ -84,6 +78,10 @@ export default function App() {
         }
     }
 
+    async function openFileInSameTab(dataObject) {
+        await getFile(dataObject)
+    }
+
     async function handleRemoveObjects() {
         // axios post to server
         // update details, and spawnedItems.
@@ -95,7 +93,7 @@ export default function App() {
                 directory: currentFileDetails.directory,
                 filename: currentFileDetails.filename 
             }
-            const resp = await deleteItems({...payload})
+            await deleteItems({...payload})
             window.location.href = "/"
         }
     }
@@ -113,7 +111,7 @@ export default function App() {
     async function openFile(dataObject){
         const {directory, filename} = dataObject
         if(directory && filename) {
-            const {payload, filename, directory} = await getFile(dataObject)
+            const {payload, filename, directory} = await getFileData(dataObject)
             // showUploadedFile(data)
             setDetails(() => payload)
             setSpawnedItems(() => payload.spawnedItems)
@@ -156,6 +154,7 @@ export default function App() {
                                             <div key={index} className="priorSaves--oneSave">
                                                     <p>{item}</p>
                                                     <button onClick={() => {openFile({directory: parent.directory, filename: item})}}>LOAD</button>
+                                                    <button onClick={() => {openFileInSameTab({directory: parent.directory, filename: item})}}>GET JSON</button>
                                                 </div>)}
                                             </div>
                                 })}
