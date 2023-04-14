@@ -9,7 +9,7 @@ body{
 
 th,
 td {
-  padding: 20px;
+  padding: 10px;
 }
 
 th{
@@ -44,6 +44,8 @@ table {
 
 .count{
   font-weight: bold;
+  color: blue;
+  font-size: 1.3rem;
 }
 
 caption{
