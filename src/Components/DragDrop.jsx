@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { postFile } from '../api/helper';
+import { postFile, postModifiedFile } from '../api/helper';
 
 export default function DropzoneComponent({showUploadedFile}) {
 
@@ -14,7 +14,8 @@ export default function DropzoneComponent({showUploadedFile}) {
             const properData = await postFile(formData)
             showUploadedFile(properData)
         } else{
-            alert("API CALL to put a PARTIAL SAVE")
+            const properData = await postModifiedFile(formData)
+            showUploadedFile(properData)
         }
     }, []);
 
