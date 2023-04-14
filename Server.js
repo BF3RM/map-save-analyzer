@@ -85,12 +85,18 @@ app.post("/api/newFile", uploads.array("files"), (req, res) => {
     res.send(`File [${name}] Uploaded`) 
 })
 
-app.post("/api/getFile", (req, res) => {
+app.post("/api/getFileData", (req, res) => {
     const { directory, filename } = req.body
     const pathName = path.resolve(__dirname, "MapSaves", directory, filename)
 
     const payload = getFileData(pathName)
     res.json({payload, directory, filename})
+})
+
+app.post("/api/getFile", (req, res) => {
+    const { directory, filename } = req.body
+    const pathName = path.resolve(__dirname, "MapSaves", directory, filename)
+    res.sendFile(pathName)
 })
 
 app.get("/api/directories", (req, res) => {
@@ -166,9 +172,6 @@ app.post("/api/deleteObjects", (req, res) => {
     }
 })
 
-app.get("/tacos", (req, res) => {
-    res.send("I like tacos")
-})
 app.get("/*", (req, res) => {
     res.sendFile(path.join(__dirname, 'build', 'index.html'))
 })
