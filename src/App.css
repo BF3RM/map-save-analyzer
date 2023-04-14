@@ -1,9 +1,9 @@
 body{
   text-align: center;
+  background-color: lightgray;
 }
 
 .spawnedItemsTable{
-  table-layout: fixed;
   margin: 0 auto;
 }
 
@@ -58,4 +58,59 @@ caption > input{
   width: 20rem;
   height: 2rem;
   font-size: 1.5rem;
+}
+
+.flexContainer {
+  display: flex;
+  flex-direction: column;
+  max-width: 70%;
+  margin: 0 auto;
+}
+
+.priorSaves{
+  min-height: 10rem;
+  font-size: 1.5rem;
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: black;
+  padding: 1rem;
+}
+
+.priorSaves--oneSave{
+  display: flex;
+  background-color: lightblue;
+  gap: 1rem;
+  margin: 1rem;
+  padding: 1rem;
+  border-radius: 1rem;
+}
+
+.priorSaves--oneSave > p {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.directoryName{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.priorSaves--oneSave > * {
+  flex: 1;
+  margin: 0 auto;
+}
+
+.priorSaveGroup{
+  display: flex;
+  overflow: auto;
+  background-color: white;
+  padding-left: 1rem;
+}
+
+.priorSaveGroup > * {
+  flex: 1;
 }
