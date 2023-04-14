@@ -24,3 +24,12 @@ export async function getFile(dataObject) {
             return response?.data
         }).catch((error) => console.error(error))
 }
+
+
+export async function deleteItems(dataObject) {
+    console.log(dataObject)
+    return axios.post(`${testingURL}/deleteObjects`, dataObject)
+        .then(response => {
+            return response?.data
+        }).catch((error) => console.error(error))
+}
