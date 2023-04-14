@@ -63,7 +63,7 @@ caption > input{
 .flexContainer {
   display: flex;
   flex-direction: column;
-  max-width: 70%;
+  max-width: 100%;
   margin: 0 auto;
 }
 
@@ -109,6 +109,10 @@ caption > input{
   overflow: auto;
   background-color: white;
   padding-left: 1rem;
+}
+
+.priorSaveGroup > .directoryName {
+  max-width: 10rem;
 }
 
 .priorSaveGroup > * {
