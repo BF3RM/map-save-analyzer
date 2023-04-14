@@ -12,14 +12,14 @@ app.use(express.json())
 
 const rawSaves = multer.diskStorage({
     destination: function(req, file, callback) {
-        callback(null, path.resolve(__dirname, "MapSaves", "RawSaves"))
+        callback(null, path.resolve(__dirname, "MapSaves", "OriginalSaves"))
     } ,
     filename: function (req, file, callback) {
-        // const date = new Date()
-        // const dateStamp = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}_`
-        // callback(null, dateStamp + file.originalname)
+        const date = new Date()
+        const dateStamp = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}_`
+        callback(null, dateStamp + file.originalname)
         // file.originalname.split(".")[0] + ".json"
-        callback(null, file.originalname)
+        // callback(null, file.originalname)
     }
 })
 
@@ -79,10 +79,10 @@ app.listen(port, () => {
 app.post("/api/newFile", uploads.array("files"), (req, res) => {
     const { name } = req.body
 
-    const pathName = path.resolve(__dirname, "MapSaves", "RawSaves", name)
-    const payload = getFileData(pathName)
+    // const pathName = path.resolve(__dirname, "MapSaves", "OriginalSaves", "sabalan-pipeline.json")
+    // const payload = getFileData(pathName)
 
-    res.json(payload) 
+    res.send(`File [${name}] Uploaded`) 
 })
 
 app.post("/api/getFile", (req, res) => {
@@ -90,7 +90,7 @@ app.post("/api/getFile", (req, res) => {
     const pathName = path.resolve(__dirname, "MapSaves", directory, filename)
 
     const payload = getFileData(pathName)
-    res.json(payload)
+    res.json({payload, directory, filename})
 })
 
 app.get("/api/directories", (req, res) => {
@@ -114,6 +114,56 @@ app.get("/api/directories", (req, res) => {
       } catch(e) {
         console.log(e)
       }
+})
+
+app.post("/api/deleteObjects", (req, res) => {
+    const blockedItemsArray = req.body.items
+    const {directory, filename} = req.body
+
+    const pathName = path.join(__dirname, "MapSaves", directory, filename)
+    const fileData = JSON.parse(fs.readFileSync(pathName, "utf-8"))
+
+    
+    const cleanDataArr = fileData.data.filter((item) => {
+        if(!blockedItemsArray.includes(item.name)){
+            return item
+        }
+    })
+
+    const dirtyDataArr = fileData.data.filter((item) => {
+        if(blockedItemsArray.includes(item.name)){
+            return item
+        }
+    })
+
+    const cleanObject = {
+        header: fileData.header,
+        data: cleanDataArr
+    }
+
+    const dirtyObject = {
+        header: fileData.header,
+        data: dirtyDataArr
+    }
+
+    const numObjects = {
+        originalLen: fileData.data.length,
+        cleanLen: cleanDataArr.length,
+        dirtyLen: dirtyDataArr.length,
+        differenceAddsUp: (cleanDataArr.length === (fileData.data.length - dirtyDataArr.length))
+    }
+
+    if(numObjects.differenceAddsUp) {
+        const excludedPath = path.join(__dirname, "MapSaves", "ModifiedSaves", `ALL-REMOVED-ITEMS_${filename}`)
+        const normalPath = path.join(__dirname, "MapSaves", "ModifiedSaves", `NORMAL-ITEMS_${filename}`)
+
+        fs.writeFileSync(excludedPath, JSON.stringify(dirtyObject))
+        fs.writeFileSync(normalPath, JSON.stringify(cleanObject))
+        return res.send("JOB IS DONE. REFRESH TO CHECK NEW FILES!!!")
+    } else {
+        console.error(`Mismatch in item counts. ${numObjects.cleanLen} + ${numObjects.dirtyLen} !== ${numObjects.originalLen}`)
+        res.status(500).send("ERROR")
+    }
 })
 
 app.get("/tacos", (req, res) => {
