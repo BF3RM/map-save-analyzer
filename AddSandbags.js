@@ -7,13 +7,19 @@ try {
     const outputPathName = path.resolve(__dirname, "sandbags", "after");
     const mapSaveNames = fs.readdirSync(sourcePathName);
     mapSaveNames.forEach((fileName) => {
-        console.log(fileName);
         const info = JSON.parse(
             fs.readFileSync(path.join(sourcePathName, fileName))
         );
 
+        if (fileName.includes("Sandbag")) {
+            console.log(`${fileName} already has sandbags`);
+            return;
+        }
+        if (info.data[1] === undefined) {
+            console.log(`${fileName} has no objects.`);
+            return;
+        }
         const newFileName = fileName.split(".json")[0] + "_With_Sandbags.json";
-        console.log(newFileName);
 
         const defaultSandbag = {
             origin: 2,
@@ -70,7 +76,7 @@ try {
 
         fs.writeFileSync(
             path.join(outputPathName, newFileName),
-            JSON.stringify(info)
+            JSON.stringify(info, null, "\t")
         );
     });
 } catch (e) {
