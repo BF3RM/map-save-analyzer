@@ -28,6 +28,13 @@ const items = {
                 z: -31.83,
             },
         },
+        guid: "82C92C4A-348D-858A-C9C7-D262F31D4D33",
+        blueprintCtrRef: {
+            partitionGuid: "41864ADA-4E14-11E0-910C-967BA89DB923",
+            typeName: "ObjectBlueprint",
+            instanceGuid: "C68519A0-10A8-2B56-42B6-B69F75306F44",
+            name: "Objects/Sandbags/Sandbags_Wall_Straight",
+        },
     },
 };
 
