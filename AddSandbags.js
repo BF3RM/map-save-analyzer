@@ -11,15 +11,10 @@ try {
             fs.readFileSync(path.join(sourcePathName, fileName))
         );
 
-        if (fileName.includes("Sandbag")) {
-            console.log(`${fileName} already has sandbags`);
-            return;
-        }
         if (info.data[1] === undefined) {
             console.log(`${fileName} has no objects.`);
             return;
         }
-        const newFileName = fileName.split(".json")[0] + "_With_Sandbags.json";
 
         const defaultSandbag = {
             origin: 2,
@@ -57,10 +52,18 @@ try {
 
         const guids = {};
         const sandbags = [];
+        let existingSandbagCount = 0;
 
         for (let i = 0; i < info.data.length; i++) {
             const item = info.data[i];
             guids[item.guid] = true;
+            if (item.name === "Objects/Sandbags/Sandbags_Wall_Straight") {
+                existingSandbagCount++;
+            }
+        }
+        if (existingSandbagCount >= 200) {
+            console.log(`${fileName} already has sandbags`);
+            return;
         }
 
         for (let i = 0; i < 200; i++) {
@@ -75,7 +78,7 @@ try {
         info.data.push(...sandbags);
 
         fs.writeFileSync(
-            path.join(outputPathName, newFileName),
+            path.join(outputPathName, fileName),
             JSON.stringify(info, null, "\t")
         );
     });
