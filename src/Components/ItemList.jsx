@@ -2,6 +2,7 @@ import React from "react";
 
 function ItemList({
     handleSearchChange,
+    setObjectsToRemove,
     nameFilter,
     objectsToRemove,
     details,
@@ -24,7 +25,7 @@ function ItemList({
                         style={{ padding: "1rem" }}
                         onClick={handleRemoveObjects}
                     >
-                        DELETE SELECTED
+                        DELETE {objectsToRemove.length} OBJECTS
                     </button>
                 )}
                 <div>
@@ -33,7 +34,19 @@ function ItemList({
             </caption>
             <thead>
                 <tr>
-                    <th scope="col">Selected</th>
+                    <th
+                        scope="col"
+                        className="checkBoxHeader"
+                        onClick={() => {
+                            if (objectsToRemove.length > 0) {
+                                setObjectsToRemove(() => []);
+                            } else {
+                                setObjectsToRemove(() => [...spawnedItems]);
+                            }
+                        }}
+                    >
+                        Selected
+                    </th>
                     <th scope="col">Item Name</th>
                     <th scope="col">
                         Amount{" "}
@@ -50,7 +63,10 @@ function ItemList({
                                 <input
                                     className="checkBoxes"
                                     type="checkbox"
-                                    onClick={() => {
+                                    checked={objectsToRemove.includes(
+                                        item.name
+                                    )}
+                                    onChange={() => {
                                         handleCheckBox(item.name);
                                     }}
                                 />

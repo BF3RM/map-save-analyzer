@@ -1,120 +1,126 @@
-body{
-  text-align: center;
-  background-color: lightgray;
+body {
+    text-align: center;
+    background-color: lightgray;
 }
 
-.spawnedItemsTable{
-  margin: 0 auto;
+.spawnedItemsTable {
+    margin: 0 auto;
 }
 
 th,
 td {
-  padding: 10px;
+    padding: 10px;
 }
 
-th{
-  background-color: lightgreen;
+th {
+    background-color: lightgreen;
 }
 
 tbody tr:nth-child(odd) {
-  background-color: #87cefa;
-  color: black;
+    background-color: #87cefa;
+    color: black;
 }
 
 tbody tr:nth-child(even) {
-  background-color: #e5e4e2;
+    background-color: #e5e4e2;
 }
 
 table {
-  text-align: center;
-  background-color: black;
+    text-align: center;
+    background-color: black;
 }
 
-[type=checkbox] {
-  width: 2rem;
-  height: 2rem;
-  color: dodgerblue;
-  background-color: #FFFFFF;
-  cursor: pointer;
+[type="checkbox"] {
+    width: 2rem;
+    height: 2rem;
+    color: dodgerblue;
+    background-color: #ffffff;
+    cursor: pointer;
 }
 
-.itemName{
-  text-align: left;
+.itemName {
+    text-align: left;
 }
 
-.count{
-  font-weight: bold;
-  color: blue;
-  font-size: 1.3rem;
+.count {
+    font-weight: bold;
+    color: blue;
+    font-size: 1.3rem;
 }
 
-caption{
-  text-align: left;
-  font-size: 2rem;
-  margin: 1rem;
+caption {
+    text-align: left;
+    font-size: 2rem;
+    margin: 1rem;
 }
 
-caption > input{
-  width: 20rem;
-  height: 2rem;
-  font-size: 1.5rem;
+caption > input {
+    width: 20rem;
+    height: 2rem;
+    font-size: 1.5rem;
 }
 
 .flexContainer {
-  display: flex;
-  flex-direction: column;
-  max-width: 100%;
-  margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    max-width: 100%;
+    margin: 0 auto;
 }
 
-.priorSaves{
-  min-height: 10rem;
-  font-size: 1.5rem;
-  border-radius: 1rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  background-color: black;
-  padding: 1rem;
+.priorSaves {
+    min-height: 10rem;
+    font-size: 1.5rem;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: black;
+    padding: 1rem;
 }
 
-.priorSaves--oneSave{
-  display: flex;
-  background-color: lightblue;
-  gap: 1rem;
-  margin: 1rem;
-  padding: 1rem;
-  border-radius: 1rem;
+.priorSaves--oneSave {
+    display: flex;
+    background-color: lightblue;
+    gap: 1rem;
+    margin: 1rem;
+    padding: 1rem;
+    border-radius: 1rem;
 }
 
 .priorSaves--oneSave > p {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
-.directoryName{
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+.directoryName {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .priorSaves--oneSave > * {
-  flex: 1;
-  margin: 0 auto;
+    flex: 1;
+    margin: 0 auto;
 }
 
-.priorSaveGroup{
-  display: flex;
-  overflow: auto;
-  background-color: white;
-  padding-left: 1rem;
+.priorSaveGroup {
+    display: flex;
+    overflow: auto;
+    background-color: white;
+    padding-left: 1rem;
 }
 
 .priorSaveGroup > .directoryName {
-  max-width: 10rem;
+    max-width: 10rem;
 }
 
 .priorSaveGroup > * {
-  flex: 1;
+    flex: 1;
+}
+
+.checkBoxHeader:hover {
+    color: lightgreen;
+    background-color: black;
+    cursor: pointer;
 }

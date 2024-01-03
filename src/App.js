@@ -27,16 +27,11 @@ export default function App() {
         updateDirectories();
     }, []);
 
-    React.useEffect(() => {
-        console.log(spawnedItems);
-    }, [spawnedItems]);
-
     async function updateDirectories() {
         const data = await getDirectories();
         if (!data) {
             return;
         } else {
-            console.log(data);
             const filteredData = [
                 ...data.filter((item) => item.files.length > 0),
             ];
@@ -122,7 +117,13 @@ export default function App() {
         if (typeof nameFilter === "string" && nameFilter.length > 0) {
             const regex = new RegExp(nameFilter, "gi");
             const newArr = [...details.spawnedItems].filter((item) => {
-                return item.name.match(regex);
+                if (item.name.match(regex)) {
+                    return true;
+                }
+                if (objectsToRemove.includes(item.name)) {
+                    return true;
+                }
+                return false;
             });
             setSpawnedItems(() => newArr);
         }
@@ -170,8 +171,6 @@ export default function App() {
             dataObject.filename === currentFileDetails.filename &&
             currentFileDetails.directory === dataObject.directory
         ) {
-            console.log(dataObject);
-            console.log(currentFileDetails);
             alert("Cannot merge file with itself. Pick a different file.");
             return;
         }
@@ -218,6 +217,7 @@ export default function App() {
                         handleSearchChange={handleSearchChange}
                         nameFilter={nameFilter}
                         objectsToRemove={objectsToRemove}
+                        setObjectsToRemove={setObjectsToRemove}
                         details={details}
                         sortSpawnedItems={sortSpawnedItems}
                         spawnedItems={spawnedItems}
