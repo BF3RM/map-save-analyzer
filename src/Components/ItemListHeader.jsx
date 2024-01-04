@@ -14,14 +14,6 @@ function ItemListHeader({ details, clearState, setView }) {
                 <button
                     style={{ padding: "1rem" }}
                     onClick={() => {
-                        clearState();
-                    }}
-                >
-                    BACK
-                </button>
-                <button
-                    style={{ padding: "1rem" }}
-                    onClick={() => {
                         setView(() => "merge");
                     }}
                 >

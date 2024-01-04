@@ -1,4 +1,3 @@
-import DropzoneComponent from "./Components/DragDrop";
 import React from "react";
 import "./App.css";
 import {
@@ -13,6 +12,7 @@ import ItemList from "./Components/ItemList";
 import ItemListHeader from "./Components/ItemListHeader";
 import SaveFileMerger from "./Components/SaveFileMerger";
 import HomeView from "./Components/HomeView";
+import AddItemView from "./Components/AddItemView";
 
 export default function App() {
     const [details, setDetails] = React.useState(null);
@@ -207,6 +207,14 @@ export default function App() {
             )}
             {view === "details" && (
                 <>
+                    <button
+                        style={{ padding: "1rem" }}
+                        onClick={() => {
+                            clearState();
+                        }}
+                    >
+                        BACK
+                    </button>
                     <ItemListHeader
                         clearState={clearState}
                         details={details}
@@ -227,11 +235,34 @@ export default function App() {
                 </>
             )}
             {view === "merge" && (
-                <SaveFileMerger
-                    currentFileDetails={currentFileDetails}
-                    filesOnServer={filesOnServer}
-                    pickSecondFile={pickSecondFile}
-                />
+                <>
+                    <button
+                        style={{ padding: "1rem" }}
+                        onClick={() => {
+                            clearState();
+                        }}
+                    >
+                        BACK
+                    </button>
+                    <SaveFileMerger
+                        currentFileDetails={currentFileDetails}
+                        filesOnServer={filesOnServer}
+                        pickSecondFile={pickSecondFile}
+                    />
+                </>
+            )}
+            {view === "addItems" && (
+                <>
+                    <button
+                        style={{ padding: "1rem" }}
+                        onClick={() => {
+                            clearState();
+                        }}
+                    >
+                        BACK
+                    </button>
+                    <AddItemView />
+                </>
             )}
         </div>
     );
