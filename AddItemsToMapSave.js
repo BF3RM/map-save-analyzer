@@ -36,6 +36,39 @@ const items = {
             name: "Objects/Sandbags/Sandbags_Wall_Straight",
         },
     },
+    razorwire: {
+        guid: "EC3E4D59-2583-491B-9B28-CEDEFFA922EA",
+        transform: {
+            left: {
+                x: 1,
+                y: 0,
+                z: 0,
+            },
+            up: {
+                x: 0,
+                y: 1,
+                z: 0,
+            },
+            forward: {
+                x: 0,
+                y: 0,
+                z: 1,
+            },
+            trans: {
+                x: 100.604,
+                y: -6000,
+                z: -91.209,
+            },
+        },
+        origin: 2,
+        name: "Props/StreetProps/RazorWire_01/RazorWire_01",
+        blueprintCtrRef: {
+            typeName: "ObjectBlueprint",
+            instanceGuid: "90F7C75D-FC31-11DD-9978-FE37F49D451C",
+            partitionGuid: "90F7C75C-FC31-11DD-9978-FE37F49D451C",
+            name: "Props/StreetProps/RazorWire_01/RazorWire_01",
+        },
+    },
 };
 
 (() => {
