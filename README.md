@@ -10,7 +10,7 @@
 
 ## Editing Map Saves
 
-- `npm run start` and use the web view
+- `node server.js` and go to localhost:5000
 - You can remove items from a save, like trees, to make loading way faster.
 - You can combine the removed items back into the original save file.
 
