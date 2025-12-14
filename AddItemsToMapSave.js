@@ -69,6 +69,39 @@ const items = {
             name: "Props/StreetProps/RazorWire_01/RazorWire_01",
         },
     },
+    hescobarrier: {
+        guid: "EC3E4D59-2583-491B-9B28-CEDEFFA922EB",
+        transform: {
+            left: {
+                x: 1,
+                y: 0,
+                z: 0,
+            },
+            up: {
+                x: 0,
+                y: 0,
+                z: -1,
+            },
+            forward: {
+                x: 0,
+                y: 1,
+                z: 0,
+            },
+            trans: {
+                x: 100.604,
+                y: -7000,
+                z: -91.209,
+            },
+        },
+        origin: 2,
+        name: "Objects/HescoBarrier_01/HescoBarrier_01",
+        blueprintCtrRef: {
+            typeName: "ObjectBlueprint",
+            instanceGuid: "e0ed4088-cfba-4c7c-f773-8a088d542124",
+            partitionGuid: "1248b1b2-851a-11e0-b3a9-c8fa83dbc836",
+            name: "Objects/HescoBarrier_01/HescoBarrier_01",
+        },
+    },
 };
 
 (() => {
@@ -77,7 +110,11 @@ const items = {
     console.log(args);
 
     const itemObjectToAdd = items[args[0]];
-    const itemCount = items[args[1]] || 200;
+    let itemCount = 200;
+    console.log(args[1]);
+    if (args[1]) {
+        itemCount = Number(args[1]);
+    }
     if (itemCount <= 0) {
         console.error("Please enter itemCount greater than 0");
         return;
@@ -107,11 +144,6 @@ const items = {
                 fs.readFileSync(path.join(sourcePathName, fileName))
             );
 
-            if (info.data[0] === undefined) {
-                console.log(`${fileName} has no objects.`);
-                return;
-            }
-
             const guids = {};
             const newItemsArray = [];
             let existingObjectsCount = 0;
@@ -120,7 +152,9 @@ const items = {
                 const item = info.data[i];
                 guids[item.guid] = true;
                 if (item.name === itemObjectToAdd.name) {
-                    existingObjectsCount++;
+                    if (item.transform.trans.y === itemObjectToAdd.transform.trans.y) {
+                        existingObjectsCount++;
+                    }
                 }
             }
             if (existingObjectsCount >= itemCount) {
